@@ -1,0 +1,7 @@
+apis:
+  Pixi-v4.8/pixi.json:
+    alias: pixi-app-api
+  Pixi-v4.8/OASFiles/pixi.json:
+    alias: pixi-app-api1
+  OAS Files/Pixi App Good Scan.json:
+    alias: pixi-app-good-scan

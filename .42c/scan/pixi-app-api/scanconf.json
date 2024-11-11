@@ -1,0 +1,1002 @@
+{
+  "version": "2.0.0",
+  "runtimeConfiguration": {
+    "environment": "default",
+    "laxTestingModeEnabled": false,
+    "logLevel": "error",
+    "logDestination": "stdout+platform",
+    "logMaxFileSize": 2147483648,
+    "requestHeaderNameRequestId": "x-scan-request-id",
+    "requestHeaderNameScenarioId": "x-scan-scenario-id",
+    "requestFlowrate": 100,
+    "requestTimeout": 30,
+    "requestTlsInsecureSkipVerify": true,
+    "responseFollowRedirection": false,
+    "responseMaxBodySizeScan": 10485760,
+    "happyPathOnly": false,
+    "maxScanDuration": 3600,
+    "memoryLimit": 2147483648,
+    "memoryTimeSpan": 10,
+    "reportMaxHttpResponseSizeHappyPath": 8092,
+    "reportMaxBodySizeHappyPath": 8092,
+    "reportMaxHttpResponseSizeTest": 8092,
+    "reportMaxBodySizeTest": 8092,
+    "reportIssuesOnly": false,
+    "reportMaxIssues": 1000,
+    "reportMaxSize": 20971520,
+    "reportGenerateCurlCommand": true
+  },
+  "customizations": {
+    "happyPaths": {
+      "retry": 1,
+      "responsePolicy": {
+        "httpStatusExpected": true,
+        "mustBeConformant": true
+      },
+      "httpStatusExpected": [
+        "2XX",
+        "400",
+        "404"
+      ]
+    },
+    "tests": {
+      "responsePolicy": {
+        "httpStatusExpected": true,
+        "mustBeConformant": true
+      }
+    }
+  },
+  "environments": {
+    "default": {
+      "variables": {
+        "host": {
+          "name": "SCAN42C_HOST",
+          "from": "environment",
+          "required": false,
+          "default": "http://localhost:8090/api"
+        },
+        "username": {
+          "name": "SCAN42C_USERNAME",
+          "from": "environment",
+          "required": false,
+          "default": "barbara8@demo.mail"
+        },
+        "password": {
+          "name": "SCAN42C_PASSWORD",
+          "from": "environment",
+          "required": false,
+          "default": "ball"
+        }
+      }
+    }
+  },
+  "operations": {
+    "adminallusers": {
+      "operationId": "adminallusers",
+      "request": {
+        "operationId": "adminallusers",
+        "auth": [
+          "access-token/Admin"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "adminallusers",
+            "method": "GET",
+            "url": "{{host}}/admin/all_users"
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/adminallusers/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ],
+      "authorizationTests": [
+        "AdminOnlyOps"
+      ]
+    },
+    "authenticate": {
+      "operationId": "authenticate",
+      "request": {
+        "operationId": "authenticate",
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "authenticate",
+            "method": "POST",
+            "url": "{{host}}/user/login",
+            "headers": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "requestBody": {
+              "mode": "json",
+              "json": {
+                "pass": "{{password}}",
+                "user": "{{username}}"
+              }
+            }
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "422": {
+            "expectations": {
+              "httpStatus": 422
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/authenticate/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "deletePicture": {
+      "operationId": "deletePicture",
+      "request": {
+        "operationId": "deletePicture",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "deletePicture",
+            "method": "DELETE",
+            "url": "{{host}}/picture/{id}",
+            "paths": [
+              {
+                "key": "id",
+                "value": "{{picture_id}}"
+              }
+            ]
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/deletePicture/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "deleteUser": {
+      "operationId": "deleteUser",
+      "request": {
+        "operationId": "deleteUser",
+        "auth": [
+          "access-token/Admin"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "deleteUser",
+            "method": "DELETE",
+            "url": "{{host}}/admin/user/{userid}",
+            "paths": [
+              {
+                "key": "userid",
+                "value": "{{userid}}"
+              }
+            ]
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/deleteUser/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ],
+      "authorizationTests": [
+        "deleteUser"
+      ]
+    },
+    "edituserinfo": {
+      "operationId": "edituserinfo",
+      "request": {
+        "operationId": "edituserinfo",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "edituserinfo",
+            "method": "PUT",
+            "url": "{{host}}/user/edit_info",
+            "headers": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "requestBody": {
+              "mode": "json",
+              "json": {
+                "email": "barbara8@demo.mail",
+                "name": "{{$randomString}}"
+              }
+            }
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/edituserinfo/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "getInfoById": {
+      "operationId": "getInfoById",
+      "request": {
+        "operationId": "getInfoById",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "getInfoById",
+            "method": "GET",
+            "url": "{{host}}/user/info/{id}",
+            "paths": [
+              {
+                "key": "id",
+                "value": "{{id}}"
+              }
+            ]
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/getInfoById/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "getUserPictures": {
+      "operationId": "getUserPictures",
+      "request": {
+        "operationId": "getUserPictures",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "getUserPictures",
+            "method": "GET",
+            "url": "{{host}}/user/pictures/{id}",
+            "paths": [
+              {
+                "key": "id",
+                "value": "{{picture_id}}"
+              }
+            ]
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/getUserPictures/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "listUserPictures": {
+      "operationId": "listUserPictures",
+      "request": {
+        "operationId": "listUserPictures",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "listUserPictures",
+            "method": "GET",
+            "url": "{{host}}/user/pictures"
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/listUserPictures/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "register": {
+      "operationId": "register",
+      "request": {
+        "operationId": "register",
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "register",
+            "method": "POST",
+            "url": "{{host}}/user/register",
+            "headers": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "requestBody": {
+              "mode": "json",
+              "json": {
+                "account_balance": 150,
+                "is_admin": false,
+                "name": "PixiUser",
+                "pass": "hellopixi",
+                "user": "register{{$randomuint}}@test.com"
+              }
+            }
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "202": {
+            "expectations": {
+              "httpStatus": 202
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/register/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "uploadPicture": {
+      "operationId": "uploadPicture",
+      "request": {
+        "operationId": "uploadPicture",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "uploadPicture",
+            "method": "POST",
+            "url": "{{host}}/picture/upload",
+            "headers": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "requestBody": {
+              "mode": "json",
+              "json": {
+                "contents": "",
+                "title": "company logo"
+              }
+            }
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/uploadPicture/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "uploadPictureFromFile": {
+      "operationId": "uploadPictureFromFile",
+      "request": {
+        "operationId": "uploadPictureFromFile",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "uploadPictureFromFile",
+            "method": "POST",
+            "url": "{{host}}/picture/file_upload",
+            "headers": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "requestBody": {
+              "mode": "json",
+              "json": {
+                "filename": "https://42crunch.com/wp-content/uploads/2022/02/LogoCr1.png",
+                "title": "company logo"
+              }
+            }
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/uploadPictureFromFile/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "userSearch": {
+      "operationId": "userSearch",
+      "request": {
+        "operationId": "userSearch",
+        "auth": [
+          "access-token/Admin"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "userSearch",
+            "method": "GET",
+            "url": "{{host}}/admin/users/search",
+            "queries": [
+              {
+                "key": "search",
+                "value": "barbara8@demo.mail"
+              }
+            ]
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/userSearch/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    },
+    "userinfo": {
+      "operationId": "userinfo",
+      "request": {
+        "operationId": "userinfo",
+        "auth": [
+          "access-token"
+        ],
+        "request": {
+          "type": "42c",
+          "details": {
+            "operationId": "userinfo",
+            "method": "GET",
+            "url": "{{host}}/user/info"
+          }
+        },
+        "defaultResponse": "200",
+        "responses": {
+          "200": {
+            "expectations": {
+              "httpStatus": 200
+            }
+          },
+          "403": {
+            "expectations": {
+              "httpStatus": 403
+            }
+          },
+          "default": {
+            "expectations": {
+              "httpStatus": "default"
+            }
+          }
+        }
+      },
+      "scenarios": [
+        {
+          "key": "happy.path",
+          "requests": [
+            {
+              "fuzzing": true,
+              "$ref": "#/operations/userinfo/request"
+            }
+          ],
+          "fuzzing": true
+        }
+      ]
+    }
+  },
+  "before": [
+    {
+      "$ref": "#/operations/authenticate/request",
+      "environment": {
+        "username": "pixiadmin@demo.mail",
+        "password": "adminpixi"
+      },
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          },
+          "variableAssignments": {
+            "admin-id": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/_id"
+              }
+            },
+            "admin-token": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/token"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$ref": "#/operations/authenticate/request",
+      "environment": {
+        "": ""
+      },
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          },
+          "variableAssignments": {
+            "access-token": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/token"
+              }
+            },
+            "id": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/_id"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$ref": "#/operations/authenticate/request",
+      "environment": {
+        "username": "misty94@demo.mail",
+        "password": "ball"
+      },
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          },
+          "variableAssignments": {
+            "id2": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/_id"
+              }
+            },
+            "access-token2": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/token"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$ref": "#/operations/uploadPictureFromFile/request",
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          },
+          "variableAssignments": {
+            "picture_id": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/_id"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$ref": "#/operations/authenticate/request",
+      "environment": {
+        "username": "attacks-demo@acme.com",
+        "password": "hellopixi"
+      },
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          },
+          "variableAssignments": {
+            "userid": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/_id"
+              }
+            },
+            "user-token": {
+              "in": "body",
+              "from": "response",
+              "contentType": "json",
+              "path": {
+                "type": "jsonPointer",
+                "value": "/token"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "authenticationDetails": [
+    {
+      "access-token": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-access-token",
+        "default": "User2",
+        "credentials": {
+          "User1": {
+            "credential": "{{access-token}}"
+          },
+          "User2": {
+            "credential": "{{access-token2}}"
+          },
+          "Admin": {
+            "credential": "{{admin-token}}"
+          }
+        }
+      },
+      "dynamic-tokens": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-access-token",
+        "default": "User1",
+        "description": "",
+        "credentials": {
+          "User1": {
+            "credential": "{{dynamic-token}}"
+          },
+          "Admin": {
+            "credential": "{{admin-token}}"
+          }
+        }
+      }
+    }
+  ],
+  "authorizationTests": {
+    "AdminOnlyOps": {
+      "key": "authentication-swapping-bfla",
+      "source": [
+        "access-token/Admin"
+      ],
+      "target": [
+        "access-token/User1"
+      ]
+    },
+    "deleteUser": {
+      "key": "authentication-swapping-bola",
+      "source": [
+        "access-token/Admin"
+      ],
+      "target": [
+        "access-token/User1"
+      ]
+    },
+    "DeletePicture": {
+      "key": "authentication-swapping-bola",
+      "source": [
+        "dynamic-tokens/Admin"
+      ],
+      "target": [
+        "access-token/Admin"
+      ]
+    }
+  }
+}
