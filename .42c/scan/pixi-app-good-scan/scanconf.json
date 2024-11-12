@@ -4,7 +4,7 @@
     "environment": "default",
     "laxTestingModeEnabled": false,
     "apiConnectivityCheck": true,
-    "logLevel": "error",
+    "logLevel": "debug",
     "logDestination": "stdout+platform",
     "logMaxFileSize": 2147483648,
     "requestHeaderNameRequestId": "x-scan-request-id",
@@ -260,7 +260,7 @@
       "request": {
         "operationId": "deleteUser",
         "auth": [
-          "access-token"
+          "access-token/admin-token"
         ],
         "request": {
           "type": "42c",
@@ -271,7 +271,7 @@
             "paths": [
               {
                 "key": "userid",
-                "value": "DD68C630-3CCB-4FD0-9C5B-A0A34C952681"
+                "value": "{{delete-id}}"
               }
             ]
           }
@@ -300,12 +300,36 @@
           "key": "happy.path",
           "requests": [
             {
+              "$ref": "#/requests/createUser",
+              "responses": {
+                "200": {
+                  "expectations": {
+                    "httpStatus": 200
+                  },
+                  "variableAssignments": {
+                    "delete-id": {
+                      "from": "response",
+                      "in": "body",
+                      "contentType": "json",
+                      "path": {
+                        "type": "jsonPointer",
+                        "value": "/_id"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
               "fuzzing": true,
               "$ref": "#/operations/deleteUser/request"
             }
           ],
           "fuzzing": true
         }
+      ],
+      "authorizationTests": [
+        "DeleteUser"
       ]
     },
     "edituserinfo": {
@@ -330,8 +354,7 @@
             "requestBody": {
               "mode": "json",
               "json": {
-                "email": "foo@bar.com",
-                "name": "ao0JpbUzyMQQqTG"
+                "name": "User Hacked!"
               }
             }
           }
@@ -366,6 +389,9 @@
           ],
           "fuzzing": true
         }
+      ],
+      "authorizationTests": [
+        "EditUserInfo"
       ]
     },
     "getInfoById": {
@@ -491,7 +517,7 @@
                 "is_admin": false,
                 "name": "PixiUser",
                 "pass": "mygood2!pass",
-                "user": "foo@test.com"
+                "user": "{{$uuid}}@demo.mail"
               }
             }
           }
@@ -857,6 +883,53 @@
       "target": [
         "access-token/attack-token"
       ]
+    },
+    "DeleteUser": {
+      "key": "authentication-swapping-bfla",
+      "source": [
+        "access-token/admin-token"
+      ],
+      "target": [
+        "access-token/attack-token"
+      ]
+    },
+    "EditUserInfo": {
+      "key": "authentication-swapping-bfla",
+      "source": [
+        "access-token/access-token"
+      ],
+      "target": [
+        "access-token/attack-token"
+      ]
+    }
+  },
+  "requests": {
+    "createUser": {
+      "request": {
+        "type": "42c",
+        "details": {
+          "method": "POST",
+          "url": "{{host}}/user/register",
+          "requestBody": {
+            "mode": "json",
+            "json": {
+              "account_balance": 150,
+              "is_admin": false,
+              "name": "User to delete",
+              "pass": "mygood2!pass",
+              "user": "user-delete@demo.mail"
+            }
+          }
+        }
+      },
+      "defaultResponse": "200",
+      "responses": {
+        "200": {
+          "expectations": {
+            "httpStatus": 200
+          }
+        }
+      }
     }
   }
 }

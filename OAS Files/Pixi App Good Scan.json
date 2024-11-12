@@ -1122,21 +1122,11 @@
             },
             "UserUpdateData": {
                 "required": [
-                    "email",
                     "name"
                 ],
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                    "email": {
-                      "maxLength": 68,
-                      "minLength": 5,
-                      "pattern": "^[\\w\\-+.]+@((\\w\\-?)+\\.){1,4}[a-zA-Z0-9]{2,63}$",
-                      "type": "string",
-                      "format": "email",
-                      "example": "foo@bar.com",
-                      "x-42c-format": "o:email"
-                    },
                     "name": {
                         "maxLength": 30,
                         "minLength": 5,
